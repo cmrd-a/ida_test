@@ -11,6 +11,34 @@
       <label for="form_file">Файл</label>
       <input type="file" class="form-control-file" id="form_file">
     </div>
-    <button type="submit" class="btn btn-light">Отправить</button>
+    <button type="button" onclick="onSubmit()" class="btn btn-light">Отправить</button>
   </form>
+  {% csrf_token %}
+  <script type="text/javascript">
+      function onSubmit() {
+          const csrftoken = getCookie('csrftoken');
+          let imgUrl = document.getElementById('form_url').value
+          let imgFile = document.getElementById('form_file')
+          let myHeaders = new Headers();
+          myHeaders.append("X-CSRFToken", csrftoken);
+
+          console.log(imgFile)
+
+          let formdata = new FormData();
+          {#formdata.append("form_url", imgUrl);#}
+          formdata.append("form_file", imgFile.files[0]);
+          let requestOptions = {
+              method: 'POST',
+              headers: myHeaders,
+              body: formdata,
+              redirect: 'follow'
+          };
+
+          fetch("/images/", requestOptions)
+              .then(response => response.text())
+              .then(result => console.log(result))
+              .catch(error => console.log('error', error));
+
+      }
+  </script>
 {% endblock %}
