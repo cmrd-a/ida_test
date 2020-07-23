@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+  <a href="{% url 'index' %}">Назад к списку</a>
+  <h1>Новое изображение</h1>
+  <form>
+    <div class="form-group">
+      <label for="url">Ссылка</label>
+      <input type="url" class="form-control" id="url">
+    </div>
+    <div class="form-group">
+      <label for="file">Файл</label>
+      <input type="file" class="form-control-file" id="file">
+    </div>
+    <button type="submit" class="btn btn-light">Отправить</button>
+  </form>
+{% endblock %}

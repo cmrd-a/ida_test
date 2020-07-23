@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h1>Список изображений</h1>
+  {% if images.count < 1 %}
+    <p>Нет доступных изображений</p>
+  {% else %}
+    {% for i in images %}
+      <p><a href="{% url 'image_details' i.pk %}">{{ i }}</a></p>
+    {% endfor %}
+  {% endif %}
+  <a href="{% url 'add_image' %}">Добавить изображение</a>
+{% endblock %}

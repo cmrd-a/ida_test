@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content %}
+  <a href="{% url 'index' %}">Назад к списку</a>
+  <h1>{{ image }}</h1>
+  <form>
+    <div class="form-group" style="max-width: 100px">
+      <label for="width">Ширина</label>
+      <input type="number" class="form-control" id="width" >
+    </div>
+    <div class="form-group" style="max-width: 100px">
+      <label for="height">Высота</label>
+      <input type="number" class="form-control" id="height">
+    </div>
+    <button type="submit" class="btn btn-light">Отправить</button>
+  </form>
+  <div style="overflow: auto; max-height: 500px; padding-top: 1rem">
+    <img src="{{ image.file.url }}" alt="{{ image }}">
+  </div>
+{% endblock %}
