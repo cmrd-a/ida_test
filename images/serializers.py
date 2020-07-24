@@ -19,7 +19,10 @@ class ImageSerializer(serializers.ModelSerializer):
         form_url = attrs.get('form_url', None)
         form_file = attrs.get('form_file', None)
         if (not form_url and not form_file) or (form_url and form_file):
-            raise serializers.ValidationError("only form_url or only form_file is required")
+            raise serializers.ValidationError({
+                "form_url": "only form_url or only form_file is required",
+                "form_file": "only form_url or only form_file is required"
+            })
         elif form_url:
             _, ext = os.path.splitext(form_url)
             allowed_extensions = ['.jpg', '.png', '.bmp']
@@ -29,7 +32,8 @@ class ImageSerializer(serializers.ModelSerializer):
             try:
                 PIL.Image.open(form_file)
             except PIL.UnidentifiedImageError:
-                raise serializers.ValidationError("form_file is not image")
+                raise serializers.ValidationError({
+                    "form_file": "only images allowed"})
         return attrs
 
     def create(self, validated_data):
@@ -38,9 +42,12 @@ class ImageSerializer(serializers.ModelSerializer):
         image_instance = Image()
         if form_url:
             file_name = os.path.basename(urllib.parse.urlparse(form_url).path)
+            req = urllib.request.Request(form_url)
             try:
-                response = urllib.request.urlopen(form_url)
+                response = urllib.request.urlopen(req)
             except urllib.error.HTTPError as e:
+                print(e.code)
+                print(e.read())
                 raise serializers.ValidationError({"form_url": e})
             django_file = File(BytesIO(response.read()))
             image_instance.file.save(file_name, django_file)

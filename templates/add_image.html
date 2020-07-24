@@ -2,7 +2,7 @@
 {% block content %}
   <a href="{% url 'index' %}">Назад к списку</a>
   <h1>Новое изображение</h1>
-  <form>
+  <form id="imgForm">
     <div class="form-group">
       <label for="form_url">Ссылка</label>
       <input type="url" class="form-control" id="form_url">
@@ -11,34 +11,47 @@
       <label for="form_file">Файл</label>
       <input type="file" class="form-control-file" id="form_file">
     </div>
-    <button type="button" onclick="onSubmit()" class="btn btn-light">Отправить</button>
+    <button type="submit" class="btn btn-primary">Отправить</button>
   </form>
   {% csrf_token %}
   <script type="text/javascript">
-      function onSubmit() {
-          const csrftoken = getCookie('csrftoken');
+
+          async function submit(formdata) {
+              const csrftoken = getCookie('csrftoken');
+              let myHeaders = new Headers();
+              myHeaders.append("X-CSRFToken", csrftoken);
+
+              let requestOptions = {
+                  method: 'POST',
+                  headers: myHeaders,
+                  body: formdata,
+                  redirect: 'follow'
+              };
+
+              await fetch("/images/", requestOptions)
+                  .then(response => response.text())
+                  .then(result => console.log(result))
+                  .catch(error => console.log('error', error));
+              document.location.reload(true);
+          }
+
+
+      imgForm.onsubmit = async (e) => {
+          e.preventDefault();
           let imgUrl = document.getElementById('form_url').value
-          let imgFile = document.getElementById('form_file')
-          let myHeaders = new Headers();
-          myHeaders.append("X-CSRFToken", csrftoken);
-
-          console.log(imgFile)
-
+          let imgFile = document.getElementById('form_file').files[0]
           let formdata = new FormData();
-          {#formdata.append("form_url", imgUrl);#}
-          formdata.append("form_file", imgFile.files[0]);
-          let requestOptions = {
-              method: 'POST',
-              headers: myHeaders,
-              body: formdata,
-              redirect: 'follow'
-          };
 
-          fetch("/images/", requestOptions)
-              .then(response => response.text())
-              .then(result => console.log(result))
-              .catch(error => console.log('error', error));
-
-      }
+          if (((imgUrl === "") && (imgFile == null))
+              || ((imgUrl !== "") && (imgFile != null))) {
+              alert("Должно быть заполнено одно и только одно поле")
+          } else if ((imgUrl !== "")) {
+              formdata.append("form_url", imgUrl);
+              await submit(formdata)
+          } else if (imgFile !== null) {
+              formdata.append("form_file", imgFile);
+              await submit(formdata)
+          }
+      };
   </script>
 {% endblock %}
