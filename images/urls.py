@@ -11,5 +11,5 @@ urlpatterns = [
     path('', index, name='index'),
     path('add/', add_image, name='add_image'),
     path('<int:pk>/', image_details, name='image_details'),
-    url(r'^', include(router.urls)),
+    url(r'^api/', include(router.urls)),
 ]
