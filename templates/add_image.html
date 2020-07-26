@@ -30,17 +30,21 @@
 
               await fetch("/api/images/", requestOptions)
                   .then(response => response.text())
-                  .then(result => console.log(result))
+                  .then(result => {
+                      console.log(result);
+                      let pk = JSON.parse(result).pk
+                      window.location.replace("/" + pk + "/")
+                  })
                   .catch(error => console.log('error', error));
-              document.location.reload(true);
+
           }
 
 
-      newForm.onsubmit = async (e) => {
-          e.preventDefault();
-          let imgUrl = document.getElementById('form_url').value
-          let imgFile = document.getElementById('form_file').files[0]
-          let formdata = new FormData();
+          newForm.onsubmit = async (e) => {
+              e.preventDefault();
+              let imgUrl = document.getElementById('form_url').value
+              let imgFile = document.getElementById('form_file').files[0]
+              let formdata = new FormData();
 
           if (((imgUrl === "") && (imgFile == null))
               || ((imgUrl !== "") && (imgFile != null))) {

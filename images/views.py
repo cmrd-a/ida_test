@@ -1,15 +1,15 @@
 import os
 import urllib
-from io import BytesIO
+import urllib.error
 import urllib.parse
 import urllib.request
-import urllib.error
+from io import BytesIO
+
 from PIL import Image as PImage
 from django.core.files.base import ContentFile
 from django.shortcuts import render, get_object_or_404
 from rest_framework import viewsets, status
 from rest_framework.response import Response
-from django.core.files.base import File
 
 from images.models import Image
 from .serializers import ImageSerializer, ImageNewSerializer, ImageResizeSerializer
@@ -40,7 +40,6 @@ class ImageViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         serializer = ImageNewSerializer(data=request.data)
         if serializer.is_valid():
-            print("asfsdf")
             form_url = serializer.validated_data.get('form_url', None)
             form_file = serializer.validated_data.get('form_file', None)
             image_instance = Image()
@@ -51,7 +50,7 @@ class ImageViewSet(viewsets.ModelViewSet):
                     response = urllib.request.urlopen(req)
                 except urllib.error.HTTPError:
                     return Response(status=status.HTTP_400_BAD_REQUEST, data={"form_url": "error"})
-                django_file = File(BytesIO(response.read()))
+                django_file = ContentFile(BytesIO(response.read()).getvalue())
                 image_instance.file.save(file_name, django_file)
 
             elif form_file:
@@ -69,7 +68,6 @@ class ImageViewSet(viewsets.ModelViewSet):
             original_width, original_height = original_image.size
             width = serializer.validated_data.get('width', original_width)
             height = serializer.validated_data.get('height', original_height)
-
             original_format = original_image.format
             original_image.thumbnail((width, height), PImage.ANTIALIAS)
             file_name = os.path.basename(instance.file.name)

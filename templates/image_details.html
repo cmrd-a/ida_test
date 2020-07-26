@@ -5,11 +5,11 @@
   <form id="resizeForm">
     <div class="form-group" style="max-width: 100px">
       <label for="width">Ширина</label>
-      <input type="number" class="form-control" id="width">
+      <input type="number" class="form-control" id="width" min="1">
     </div>
     <div class="form-group" style="max-width: 100px">
       <label for="height">Высота</label>
-      <input type="number" class="form-control" id="height">
+      <input type="number" class="form-control" id="height" min="1">
     </div>
     <button type="submit" class="btn btn-primary">Отправить</button>
   </form>
@@ -23,13 +23,13 @@
           myHeaders.append("X-CSRFToken", csrftoken);
 
           let requestOptions = {
-              method: 'POST',
+              method: 'PUT',
               headers: myHeaders,
               body: formdata,
               redirect: 'follow'
           };
 
-          await fetch("/images/", requestOptions)
+          await fetch("/api/images/{{ image.pk }}/", requestOptions)
               .then(response => response.text())
               .then(result => console.log(result))
               .catch(error => console.log('error', error));
@@ -39,18 +39,15 @@
 
       resizeForm.onsubmit = async (e) => {
           e.preventDefault();
-          let imgUrl = document.getElementById('form_url').value
-          let imgFile = document.getElementById('form_file').files[0]
+          let width = document.getElementById('width').value
+          let height = document.getElementById('height').value
           let formdata = new FormData();
 
-          if (((imgUrl === "") && (imgFile == null))
-              || ((imgUrl !== "") && (imgFile != null))) {
-              alert("Должно быть заполнено одно и только одно поле")
-          } else if ((imgUrl !== "")) {
-              formdata.append("form_url", imgUrl);
-              await submit(formdata)
-          } else if (imgFile !== null) {
-              formdata.append("form_file", imgFile);
+          if ((width === "") && (height === "")) {
+              alert("Должно быть заполнено хятя бы одно поле")
+          } else {
+              formdata.append("width", width);
+              formdata.append("height", height);
               await submit(formdata)
           }
       };
